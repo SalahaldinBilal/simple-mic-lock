@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="plate" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="256">
+      <stop offset="0" stop-color="#2B3039"/>
+      <stop offset="1" stop-color="#16181D"/>
+    </linearGradient>
+    <linearGradient id="glyph" gradientUnits="userSpaceOnUse" x1="0" y1="32" x2="0" y2="220">
+      <stop offset="0" stop-color="#5BDD99"/>
+      <stop offset="1" stop-color="#2EB06B"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="60" fill="url(#plate)"/>
+  <rect x="2" y="2" width="252" height="252" rx="58" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="4"/>
+  <rect x="80" y="32" width="96" height="128" rx="48" fill="url(#glyph)"/>
+  <circle cx="128" cy="86" r="17" fill="#1B1E24"/>
+  <path d="M119 94 L113 128 H143 L137 94 Z" fill="#1B1E24"/>
+  <g fill="none" stroke="url(#glyph)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M60 96 V112 A68 68 0 0 0 196 112 V96"/>
+    <path d="M128 180 V212"/>
+    <path d="M88 212 H168"/>
+  </g>
+</svg>

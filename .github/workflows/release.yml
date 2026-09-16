@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Build and release
+    if: github.actor == 'SalahaldinBilal'
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "v0-rust-windows-latest"
+          cache-on-failure: true
+
+      - name: Resolve version
+        id: version
+        run: |
+          $version = (cargo metadata --no-deps --format-version 1 | ConvertFrom-Json).packages[0].version
+          if ("${{ github.ref_type }}" -eq "tag" -and "${{ github.ref_name }}" -ne "v$version") {
+            throw "Tag ${{ github.ref_name }} does not match Cargo.toml version $version"
+          }
+          "number=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Test
+        run: cargo test --locked
+
+      - name: Build app
+        run: cargo build --release --locked
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        run: |
+          $iscc = Get-ChildItem "${env:ProgramFiles(x86)}\Inno Setup*\ISCC.exe", "$env:ProgramFiles\Inno Setup*\ISCC.exe" -ErrorAction SilentlyContinue |
+            Select-Object -First 1
+          if (-not $iscc) { throw "ISCC.exe was not found after installing Inno Setup" }
+
+          $icon = Get-ChildItem "target\release\build\simple-mic-lock-*\out\app.ico" |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $icon) { throw "build.rs did not generate app.ico" }
+
+          & $iscc.FullName `
+            "/DAppVersion=${{ steps.version.outputs.number }}" `
+            "/DSourceExe=$PWD\target\release\simple-mic-lock.exe" `
+            "/DAppIcon=$($icon.FullName)" `
+            "/O$PWD\dist" `
+            "installer\simple-mic-lock.iss"
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE" }
+
+      - name: Publish release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $installer = (Get-ChildItem "dist\*.exe").FullName
+          gh release create "${{ github.ref_name }}" $installer `
+            --title "Simple Mic Lock ${{ github.ref_name }}" `
+            --generate-notes
+
+      - name: Upload installer for testing
+        if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@v7
+        with:
+          name: installer
+          path: dist/*.exe
+          retention-days: 7
