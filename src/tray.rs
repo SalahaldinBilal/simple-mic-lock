@@ -35,10 +35,11 @@ fn run(state: Arc<State>) {
         return;
     };
 
-    // Posting to this thread only works once the tray's message window exists.
-    state.set_tray_thread(unsafe { GetCurrentThreadId() });
-
     let mut shown_as_locked = state.locked_count().0 > 0;
+
+    // Only notifiable once the message window exists, so catch up on anything that changed before.
+    state.set_tray_thread(unsafe { GetCurrentThreadId() });
+    sync(&state, &tray, &mut menu, &mut shown_as_locked);
     let menu_events = MenuEvent::receiver();
     let tray_events = TrayIconEvent::receiver();
     let mut msg = MSG::default();
@@ -49,19 +50,7 @@ fn run(state: Arc<State>) {
         }
 
         if msg.hwnd.is_invalid() && msg.message == MSG_SYNC {
-            if menu.is_stale(&state) {
-                menu = DeviceMenu::build(&state);
-                tray.set_menu(Some(Box::new(menu.take_menu())));
-            } else {
-                menu.refresh(&state);
-            }
-
-            let _ = tray.set_tooltip(Some(tooltip(&state)));
-            let locked = state.locked_count().0 > 0;
-            if shown_as_locked != locked {
-                shown_as_locked = locked;
-                let _ = tray.set_icon(Some(glyph(locked)));
-            }
+            sync(&state, &tray, &mut menu, &mut shown_as_locked);
         } else {
             unsafe {
                 let _ = TranslateMessage(&msg);
@@ -109,6 +98,22 @@ fn run(state: Arc<State>) {
     }
 
     drop::<TrayIcon>(tray);
+}
+
+fn sync(state: &State, tray: &TrayIcon, menu: &mut DeviceMenu, shown_as_locked: &mut bool) {
+    if menu.is_stale(state) {
+        *menu = DeviceMenu::build(state);
+        tray.set_menu(Some(Box::new(menu.take_menu())));
+    } else {
+        menu.refresh(state);
+    }
+
+    let _ = tray.set_tooltip(Some(tooltip(state)));
+    let locked = state.locked_count().0 > 0;
+    if *shown_as_locked != locked {
+        *shown_as_locked = locked;
+        let _ = tray.set_icon(Some(glyph(locked)));
+    }
 }
 
 struct DeviceMenu {
