@@ -1,0 +1,25 @@
+.Unidentified {
+  border-color: rgb(from var(--warning) r g b / .45);
+}
+
+.Warning {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--warning);
+}
+
+.Prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.Choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}

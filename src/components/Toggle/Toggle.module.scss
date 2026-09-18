@@ -1,0 +1,37 @@
+.Toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background-color: var(--track);
+  cursor: pointer;
+  transition: background-color .18s ease;
+
+  &:focus-visible {
+    outline: 2px solid rgb(from var(--accent) r g b / .5);
+    outline-offset: 2px;
+  }
+
+  &.On {
+    background-color: var(--accent);
+
+    .Knob {
+      transform: translateX(18px);
+    }
+  }
+}
+
+.Knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--knob);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+  transition: transform .18s ease;
+}

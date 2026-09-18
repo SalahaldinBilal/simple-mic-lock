@@ -19,56 +19,55 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v0-rust-windows-latest"
+          workspaces: src-tauri -> target
+          prefix-key: "v1-rust-windows-latest"
           cache-on-failure: true
 
       - name: Resolve version
         id: version
         run: |
-          $version = (cargo metadata --no-deps --format-version 1 | ConvertFrom-Json).packages[0].version
-          if ("${{ github.ref_type }}" -eq "tag" -and "${{ github.ref_name }}" -ne "v$version") {
-            throw "Tag ${{ github.ref_name }} does not match Cargo.toml version $version"
+          $package = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $tauri = (Get-Content src-tauri\tauri.conf.json -Raw | ConvertFrom-Json).version
+          $cargo = (cargo metadata --no-deps --format-version 1 --manifest-path src-tauri\Cargo.toml | ConvertFrom-Json).packages[0].version
+          if ($package -ne $tauri -or $package -ne $cargo) {
+            throw "Versions disagree: package.json $package, tauri.conf.json $tauri, Cargo.toml $cargo"
           }
-          "number=$version" >> $env:GITHUB_OUTPUT
+          if ("${{ github.ref_type }}" -eq "tag" -and "${{ github.ref_name }}" -ne "v$package") {
+            throw "Tag ${{ github.ref_name }} does not match version $package"
+          }
+          "number=$package" >> $env:GITHUB_OUTPUT
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Test
-        run: cargo test --locked
-
-      - name: Build app
-        run: cargo build --release --locked
-
-      - name: Install Inno Setup
-        run: choco install innosetup --no-progress -y
+        run: cargo test --locked --manifest-path src-tauri\Cargo.toml
 
       - name: Build installer
+        run: npm run tauri build
+
+      - name: Collect installer
         run: |
-          $iscc = Get-ChildItem "${env:ProgramFiles(x86)}\Inno Setup*\ISCC.exe", "$env:ProgramFiles\Inno Setup*\ISCC.exe" -ErrorAction SilentlyContinue |
-            Select-Object -First 1
-          if (-not $iscc) { throw "ISCC.exe was not found after installing Inno Setup" }
-
-          $icon = Get-ChildItem "target\release\build\simple-mic-lock-*\out\app.ico" |
-            Sort-Object LastWriteTime -Descending |
-            Select-Object -First 1
-          if (-not $icon) { throw "build.rs did not generate app.ico" }
-
-          & $iscc.FullName `
-            "/DAppVersion=${{ steps.version.outputs.number }}" `
-            "/DSourceExe=$PWD\target\release\simple-mic-lock.exe" `
-            "/DAppIcon=$($icon.FullName)" `
-            "/O$PWD\dist" `
-            "installer\simple-mic-lock.iss"
-          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE" }
+          $built = Get-ChildItem "src-tauri\target\release\bundle\nsis\*-setup.exe" | Select-Object -First 1
+          if (-not $built) { throw "Tauri did not produce an NSIS installer" }
+          New-Item -ItemType Directory -Force dist-release | Out-Null
+          Copy-Item $built.FullName "dist-release\SimpleMicLock-Setup-${{ steps.version.outputs.number }}.exe"
 
       - name: Publish release
         if: github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $installer = (Get-ChildItem "dist\*.exe").FullName
+          $installer = (Get-ChildItem "dist-release\*.exe").FullName
           gh release create "${{ github.ref_name }}" $installer `
             --title "Simple Mic Lock ${{ github.ref_name }}" `
             --generate-notes
@@ -78,5 +77,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: installer
-          path: dist/*.exe
+          path: dist-release/*.exe
           retention-days: 7

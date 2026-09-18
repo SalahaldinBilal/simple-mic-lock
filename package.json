@@ -1,0 +1,26 @@
+{
+  "name": "simple-mic-lock",
+  "version": "0.2.0",
+  "description": "Keeps your microphone volume where you set it",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@tauri-apps/api": "^2.10.1",
+    "lucide-solid": "^1.8.0",
+    "solid-js": "^1.9.12"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.1",
+    "@types/node": "^26.1.1",
+    "sass": "^1.99.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.0.8",
+    "vite-plugin-solid": "^2.11.12"
+  }
+}

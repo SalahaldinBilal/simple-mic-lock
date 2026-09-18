@@ -1,0 +1,121 @@
+.Main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 18px 16px 14px;
+}
+
+.Header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.Title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.AppName {
+  font-size: 17px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.Version {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.Pill {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--outline);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--muted);
+  background-color: rgb(from var(--text) r g b / .03);
+
+  &.PillActive {
+    color: var(--accent);
+    border-color: rgb(from var(--accent) r g b / .3);
+    background-color: var(--accent-background);
+  }
+}
+
+.StartupCard {
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-card);
+  background-color: var(--card);
+}
+
+.StartupRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px 12px 16px;
+
+  & + & {
+    border-top: 1px solid var(--outline);
+  }
+}
+
+.StartupText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.StartupTitle {
+  font-weight: 600;
+}
+
+.StartupHint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.Caption {
+  margin: 20px 0 8px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+
+.List {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-right: -10px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.Empty {
+  padding: 28px 16px;
+  border: 1px dashed var(--outline);
+  border-radius: var(--radius-card);
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.Footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px solid var(--outline);
+}

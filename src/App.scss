@@ -1,0 +1,62 @@
+:root {
+  --background: #14161A;
+  --card: #1C1F25;
+  --outline: #2A2F37;
+  --text: #E8EAEE;
+  --muted: #8D95A1;
+  --accent: #3BC97E;
+  --accent-background: #1D3A2C;
+  --track: #2C313A;
+  --knob: #F4F6F8;
+  --warning: #E06C5C;
+
+  --radius-card: 12px;
+  --radius-button: 9px;
+
+  color-scheme: dark;
+  font-family: "Inter Variable", system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background-color: var(--background);
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background-color: var(--background);
+  user-select: none;
+  cursor: default;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--outline);
+  border: 3px solid var(--background);
+  border-radius: 999px;
+}

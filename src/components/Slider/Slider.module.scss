@@ -1,0 +1,87 @@
+.Row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.Value {
+  width: 40px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.Slider {
+  --fill: rgb(from var(--muted) r g b / .7);
+
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+  border-radius: 999px;
+
+  &:focus-visible {
+    outline: 2px solid rgb(from var(--accent) r g b / .5);
+    outline-offset: 2px;
+  }
+
+  &.Active {
+    --fill: var(--accent);
+  }
+
+  &.Disabled {
+    cursor: not-allowed;
+    opacity: .45;
+  }
+
+  &:not(.Disabled):hover .Knob,
+  &.Dragging .Knob {
+    transform: translate(-50%, -50%) scale(1.12);
+  }
+}
+
+.Track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background-color: var(--track);
+}
+
+.Fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background-color: var(--fill);
+  transition: background-color .15s ease;
+}
+
+.Marker {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 14px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background-color: rgb(from var(--text) r g b / .6);
+  pointer-events: none;
+}
+
+.Knob {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--knob);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .4);
+  transform: translate(-50%, -50%);
+  transition: transform .12s ease;
+  pointer-events: none;
+}
